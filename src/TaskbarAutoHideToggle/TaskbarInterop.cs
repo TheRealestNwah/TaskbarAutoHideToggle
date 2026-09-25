@@ -10,7 +10,7 @@ internal static class TaskbarInterop
 {
     private const int ABM_GETSTATE = 0x4;
     private const int ABM_SETSTATE = 0xA;
-    private const int ABS_AUTOHIDE = 0x1;
+    internal const int ABS_AUTOHIDE = 0x1;
 
     [StructLayout(LayoutKind.Sequential)]
     private struct APPBARDATA
@@ -36,7 +36,7 @@ internal static class TaskbarInterop
     {
         var data = new APPBARDATA { cbSize = Marshal.SizeOf<APPBARDATA>() };
         var state = (int)SHAppBarMessage(ABM_GETSTATE, ref data);
-        return (state & ABS_AUTOHIDE) != 0;
+        return HasAutoHideFlag(state);
     }
 
     public static void SetAutoHide(bool enabled)
@@ -44,8 +44,14 @@ internal static class TaskbarInterop
         var data = new APPBARDATA
         {
             cbSize = Marshal.SizeOf<APPBARDATA>(),
-            lParam = enabled ? ABS_AUTOHIDE : 0
+            lParam = AutoHideLParam(enabled)
         };
         SHAppBarMessage(ABM_SETSTATE, ref data);
     }
+
+    /// <summary>Whether the ABS_AUTOHIDE bit is set in a state value from ABM_GETSTATE.</summary>
+    internal static bool HasAutoHideFlag(int state) => (state & ABS_AUTOHIDE) != 0;
+
+    /// <summary>The lParam to pass to ABM_SETSTATE for the desired auto-hide state.</summary>
+    internal static int AutoHideLParam(bool enabled) => enabled ? ABS_AUTOHIDE : 0;
 }
