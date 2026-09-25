@@ -9,10 +9,11 @@ internal sealed class TrayContext : ApplicationContext
     private readonly ToolStripMenuItem _autoHideItem;
     private readonly ToolStripMenuItem _hideTaskbarItem;
     private readonly ToolStripMenuItem _startupItem;
+    private readonly GlobalHotkey _hotkey;
 
     public TrayContext()
     {
-        _autoHideItem = new ToolStripMenuItem("Auto-hide taskbar", null, OnToggleAutoHide);
+        _autoHideItem = new ToolStripMenuItem("Auto-hide taskbar (Ctrl+Alt+T)", null, OnToggleAutoHide);
         _hideTaskbarItem = new ToolStripMenuItem("Hide taskbar", null, OnToggleHideTaskbar);
         _startupItem = new ToolStripMenuItem("Start with Windows", null, OnToggleStartup)
         {
@@ -34,6 +35,10 @@ internal sealed class TrayContext : ApplicationContext
             Visible = true
         };
         _notifyIcon.MouseClick += OnTrayIconClick;
+
+        _hotkey = new GlobalHotkey();
+        _hotkey.Pressed += ToggleAutoHide;
+        _hotkey.Register(GlobalHotkey.ModControl | GlobalHotkey.ModAlt, GlobalHotkey.VkT);
 
         RefreshState();
     }
@@ -72,6 +77,7 @@ internal sealed class TrayContext : ApplicationContext
         // Don't strand the user without a taskbar if the app exits while it's manually hidden.
         TaskbarVisibility.SetVisible(true);
         _notifyIcon.Visible = false;
+        _hotkey.Dispose();
         Application.Exit();
     }
 
