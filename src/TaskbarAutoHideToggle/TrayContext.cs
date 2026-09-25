@@ -9,7 +9,9 @@ internal sealed class TrayContext : ApplicationContext
     private readonly ToolStripMenuItem _autoHideItem;
     private readonly ToolStripMenuItem _hideTaskbarItem;
     private readonly ToolStripMenuItem _startupItem;
+    private readonly ToolStripMenuItem _updateItem;
     private readonly GlobalHotkey _hotkey;
+    private UpdateInfo? _pendingUpdate;
 
     public TrayContext()
     {
@@ -19,6 +21,7 @@ internal sealed class TrayContext : ApplicationContext
         {
             Checked = StartupManager.IsEnabled()
         };
+        _updateItem = new ToolStripMenuItem("Check for updates...", null, OnCheckForUpdates);
         var exitItem = new ToolStripMenuItem("Exit", null, OnExit);
 
         var menu = new ContextMenuStrip();
@@ -26,6 +29,7 @@ internal sealed class TrayContext : ApplicationContext
         menu.Items.Add(_hideTaskbarItem);
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(_startupItem);
+        menu.Items.Add(_updateItem);
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(exitItem);
 
@@ -41,6 +45,7 @@ internal sealed class TrayContext : ApplicationContext
         _hotkey.Register(GlobalHotkey.ModControl | GlobalHotkey.ModAlt, GlobalHotkey.VkT);
 
         RefreshState();
+        _ = CheckForUpdateAsync(silent: true);
     }
 
     private void OnTrayIconClick(object? sender, MouseEventArgs e)
@@ -70,6 +75,58 @@ internal sealed class TrayContext : ApplicationContext
         var enabled = !StartupManager.IsEnabled();
         StartupManager.SetEnabled(enabled);
         _startupItem.Checked = enabled;
+    }
+
+    private void OnCheckForUpdates(object? sender, EventArgs e) => _ = CheckForUpdateAsync(silent: false);
+
+    private async Task CheckForUpdateAsync(bool silent)
+    {
+        if (_pendingUpdate is not null)
+        {
+            PromptToInstallUpdate(_pendingUpdate);
+            return;
+        }
+
+        var update = await UpdateChecker.CheckForUpdateAsync();
+        if (update is null)
+        {
+            if (!silent)
+            {
+                MessageBox.Show("You're on the latest version.", "Taskbar Auto-Hide Toggle",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            return;
+        }
+
+        _pendingUpdate = update;
+        _updateItem.Text = $"Update to v{update.Version}...";
+        PromptToInstallUpdate(update);
+    }
+
+    private void PromptToInstallUpdate(UpdateInfo update)
+    {
+        var result = MessageBox.Show(
+            $"Version {update.Version} is available (you're on {UpdateChecker.CurrentVersion}). Download and install now? The app will restart.",
+            "Update available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+
+        if (result == DialogResult.Yes)
+        {
+            _ = InstallUpdateAsync(update);
+        }
+    }
+
+    private async Task InstallUpdateAsync(UpdateInfo update)
+    {
+        try
+        {
+            await SelfUpdater.DownloadAndApplyAsync(update);
+            OnExit(this, EventArgs.Empty);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Update failed: {ex.Message}", "Taskbar Auto-Hide Toggle",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     private void OnExit(object? sender, EventArgs e)
