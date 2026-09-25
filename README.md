@@ -11,7 +11,9 @@ A lightweight Windows 11 tray app that lets you toggle taskbar auto-hide without
 
 ## Install
 
-Requires the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (only for building — the installed app is self-contained and needs no separate runtime).
+**Quickest way:** grab the latest `TaskbarAutoHideToggle.exe` from [Releases](https://github.com/TheRealestNwah/TaskbarAutoHideToggle/releases/latest) and run it. No install, no .NET runtime needed — it's self-contained. Windows SmartScreen may warn since the exe isn't code-signed; choose "More info" > "Run anyway" if you trust the source.
+
+**From source**, if you'd rather build it yourself: requires the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (only for building — the installed app is self-contained and needs no separate runtime).
 
 ```powershell
 .\packaging\install.ps1
