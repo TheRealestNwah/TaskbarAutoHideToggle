@@ -1,37 +1,23 @@
+using System.Reflection;
+
 namespace TaskbarAutoHideToggle;
 
 /// <summary>
-/// Generates the two tray icon states in code, avoiding checked-in .ico assets.
+/// Loads the embedded on/off tray icon states.
 /// </summary>
 internal static class TrayIcons
 {
-    public static Icon For(bool autoHideEnabled) =>
-        autoHideEnabled ? BuildIcon(Color.MediumSeaGreen) : BuildIcon(Color.Gray);
+    private static readonly Icon OnIcon = Load("tray-on.ico");
+    private static readonly Icon OffIcon = Load("tray-off.ico");
 
-    private static Icon BuildIcon(Color barColor)
+    public static Icon For(bool autoHideEnabled) => autoHideEnabled ? OnIcon : OffIcon;
+
+    private static Icon Load(string fileName)
     {
-        using var bitmap = new Bitmap(16, 16);
-        using (var g = Graphics.FromImage(bitmap))
-        {
-            g.Clear(Color.Transparent);
-            using var brush = new SolidBrush(barColor);
-            g.FillRectangle(brush, 1, 11, 14, 3);
-        }
-
-        nint hIcon = bitmap.GetHicon();
-        try
-        {
-            return (Icon)Icon.FromHandle(hIcon).Clone();
-        }
-        finally
-        {
-            NativeMethods.DestroyIcon(hIcon);
-        }
+        var assembly = Assembly.GetExecutingAssembly();
+        var resourceName = $"{assembly.GetName().Name}.Resources.{fileName}";
+        using var stream = assembly.GetManifestResourceStream(resourceName)
+            ?? throw new InvalidOperationException($"Embedded resource '{resourceName}' not found.");
+        return new Icon(stream);
     }
-}
-
-file static class NativeMethods
-{
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
-    public static extern bool DestroyIcon(nint hIcon);
 }
