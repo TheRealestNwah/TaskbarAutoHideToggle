@@ -23,11 +23,14 @@ internal static class StartupManager
 
         if (enabled)
         {
-            key.SetValue(ValueName, $"\"{Environment.ProcessPath}\"");
+            key.SetValue(ValueName, QuotedRunValue(Environment.ProcessPath ?? string.Empty));
         }
         else
         {
             key.DeleteValue(ValueName, throwOnMissingValue: false);
         }
     }
+
+    /// <summary>Wraps an exe path in quotes so the Run key value is safe even with spaces in the path.</summary>
+    internal static string QuotedRunValue(string exePath) => $"\"{exePath}\"";
 }

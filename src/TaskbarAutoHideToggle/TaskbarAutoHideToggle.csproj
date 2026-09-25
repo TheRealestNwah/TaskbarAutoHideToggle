@@ -14,4 +14,8 @@
     <EmbeddedResource Include="Resources\tray-off.ico" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="TaskbarAutoHideToggle.Tests" />
+  </ItemGroup>
+
 </Project>
