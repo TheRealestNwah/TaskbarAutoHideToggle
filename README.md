@@ -2,6 +2,10 @@
 
 A lightweight Windows 11 tray app that lets you toggle taskbar auto-hide without digging through Settings.
 
+> **Built with AI.** Taskbar Auto-Hide Toggle's code, tests and documentation were written by
+> Claude, an AI model from Anthropic, directed and tested by the maintainer.
+> See [AI disclosure](#ai-disclosure).
+
 ## Usage
 
 - Left-click the tray icon, use the right-click menu, or press **Ctrl+Alt+T**, to toggle auto-hide.
@@ -33,3 +37,19 @@ dotnet run --project src/TaskbarAutoHideToggle
 Toggling calls the Shell AppBar API (`SHAppBarMessage` with `ABM_SETSTATE`/`ABM_GETSTATE`) directly — the same mechanism Explorer itself uses — so the change applies instantly with no Explorer restart. See [`TaskbarInterop.cs`](src/TaskbarAutoHideToggle/TaskbarInterop.cs).
 
 See [SCOPE.md](SCOPE.md) for the full design scope and roadmap.
+
+## AI disclosure
+
+Taskbar Auto-Hide Toggle was built with [Claude Code](https://claude.com/claude-code), Anthropic's
+AI coding assistant. Claude wrote the code, tests and documentation. The
+maintainer ([@TheRealestNwah](https://github.com/TheRealestNwah)) decided what
+it should do, tested it, and made the release decisions. Commits written with
+Claude carry a `Co-Authored-By: Claude` trailer, so the git history shows which
+changes were AI-written.
+
+## Support
+
+Everything on my GitHub is free of charge and open source. If you find it
+useful and want to leave a tip or buy me a coffee, you can do that at
+[ko-fi.com/morrowheat23](https://ko-fi.com/morrowheat23). It's appreciated,
+never expected.
