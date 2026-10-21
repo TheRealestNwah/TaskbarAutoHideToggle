@@ -23,3 +23,17 @@ CI (`windows-latest`, .NET 8.0.x, job `build`) runs restore, build and test on e
 - Windows-only: it P/Invokes `user32.dll`, so CI and local builds need Windows.
 - Auto-hide is changed through `SHAppBarMessage` (`ABM_SETSTATE`), not the registry plus an Explorer restart. Only the primary taskbar is handled.
 - Releases publish a self-contained exe to GitHub Releases, and the app's updater reads from there; keep release asset names stable.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in this repo's GitHub Issues, managed with the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five-role vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
